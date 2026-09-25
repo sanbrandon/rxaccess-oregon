@@ -1,0 +1,1 @@
+{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[-122.5596,45.4762]},"properties":{"record_count":1,"records":"[{\"name\": \"SDHC PHARMACY\", \"address\": \"2850 SE 82ND AVE\", \"city\": \"Portland\", \"state\": \"OR\", \"zip\": \"97266\", \"county\": \"Multnomah\", \"license\": \"PPK-0000002\"}]"}}]}
