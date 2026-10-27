@@ -1,172 +1,597 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RxAccess Oregon | Pharmacy Access Intelligence</title>
-  <meta name="description" content="Explore Oregon pharmacy access, census-tract classifications, population density, and social vulnerability. A transparent research baseline with a documented data-upgrade roadmap.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <meta name="description" content="Explore the supplied Oregon pharmacy-access poster scenario, social vulnerability, and managed-care opportunities. Research results with explicit evidence boundaries.">
+  <link rel="preconnect" href="https://api.fontshare.com">
+  <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
   <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
   <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js" defer></script>
-  <link rel="stylesheet" href="style.css">
-  <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <script src="app.js" defer></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+  <link rel="stylesheet" href="style.css?v=20261027"><link rel="stylesheet" href="refresh.css?v=20261027c"><link rel="stylesheet" href="v2.css?v=20261027v2">
+  <script src="preview-map.js?v=20261027v2" defer></script>
+  <script src="app.js?v=20261027v2" defer></script>
 </head>
 <body>
-  <a href="#main" class="skip-link">Skip to content</a>
-  <header class="site-header">
-    <div class="container header-inner">
-      <a href="#top" class="brand" aria-label="RxAccess Oregon home">
-        <span id="brand-logo-slot">
-          <svg width="38" height="38" viewBox="0 0 32 32" fill="none" aria-label="Pharmacy access symbol" role="img"><circle cx="16" cy="16" r="14" stroke="currentColor" stroke-width="2"/><path d="M16 8v16M8 16h16" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="16" cy="16" r="4" fill="currentColor"/></svg>
-        </span>
-        <span class="brand-text"><span class="brand-name">RxAccess <span>Oregon</span></span><span class="brand-sub">Pharmacy access intelligence</span></span>
-      </a>
-      <nav class="site-nav" aria-label="Primary">
-        <a href="#map">Explore</a><a href="#findings">Findings</a><a href="#sources">Data &amp; methods</a><a href="#action">Recommendations</a>
-      </nav>
-      <button class="theme-toggle" data-theme-toggle aria-label="Switch color theme" title="Switch color theme"></button>
+<a href="#main" class="skip-link">Skip to content</a>
+<header class="site-header"><div class="container header-inner">
+  <a href="#top" class="brand" aria-label="RxAccess Oregon home"><span class="brand-text"><span class="brand-name">RxAccess <span>Oregon</span></span><span class="brand-sub">Pharmacy access intelligence</span></span></a>
+  <nav class="site-nav" aria-label="Primary"><a href="#map">Explore</a><a href="#findings">Findings</a><a href="#sherwood">Sherwood</a><a href="#sources">Methods</a><a href="#action">For health plans</a></nav>
+  <button class="theme-toggle" data-theme-toggle aria-label="Switch color theme" title="Switch color theme"></button>
+</div></header>
+<main id="main">
+  <section id="top" class="hero"><div class="container">
+    <div class="edition"><span class="eyebrow">Oregon pharmacy-access research</span><span>AMCP Nexus 2026 · Poster 161</span></div>
+    <div class="hero-inner">
+      <div class="hero-copy"><h1 class="hero-title">Where pharmacy access <br>meets community need.</h1>
+        <p class="hero-lede">Explore geographic access gaps and social vulnerability, then ask what it takes to protect the next refill.</p>
+        <p class="hero-description">An interactive companion to the statewide census-tract poster. Designed for managed-care, pharmacy, and population-health teams.</p>
+        <div class="hero-actions"><a class="btn btn-primary" href="#map">Explore Oregon <span aria-hidden="true">↗</span></a><a class="btn btn-ghost" href="#sherwood">See the Sherwood case</a></div>
+      </div>
+      <div class="hero-stats" role="list" aria-label="Supplied poster scenario, not independently rerun">
+        <div class="stat" role="listitem"><div class="stat-num">194<span class="stat-denominator"> / 993</span></div><div class="stat-label">Tracts classified as deserts</div><div class="stat-sub">19.5% · supplied poster scenario</div></div>
+        <div class="stat" role="listitem"><div class="stat-num">802,804</div><div class="stat-label">Residents in classified tracts</div><div class="stat-sub">18.9% · source-labeled 2020 population</div></div>
+        <div class="stat highlight" role="listitem"><div class="stat-num">27</div><div class="stat-label">Desert + high-SVI tracts</div><div class="stat-sub">132,572 residents · SVI ≥0.75</div></div>
+        <div class="stat" role="listitem"><div class="stat-num">495</div><div class="stat-label">Outlets in the poster scenario</div><div class="stat-sub">Not the separate 494-record inventory</div></div>
+      </div>
     </div>
-  </header>
-  <main id="main">
-    <section id="top" class="hero">
-      <div class="container">
-        <div class="hero-inner">
-          <div class="hero-copy">
-            <span class="eyebrow">Oregon pharmacy-access research · 2026</span>
-            <h1 class="hero-title">Pharmacy Access Gaps in Oregon</h1>
-            <p class="hero-lede">Census-tract analysis of pharmacy deserts, pharmacy locations, and population-density overlap.</p>
-            <p class="hero-description">Explore where geographic access is limited, where barriers overlap, and where further investigation could inform action.</p>
-            <div class="hero-actions"><a class="btn btn-primary" href="#map">Explore the map <span aria-hidden="true">↗</span></a><a class="btn btn-ghost" href="#sources">Review the evidence</a></div>
-          </div>
-          <div class="hero-stats" role="list" aria-label="September analysis baseline">
-            <div class="stat" role="listitem"><div class="stat-num">485<span class="stat-denominator"> / 992</span></div><div class="stat-label">Tracts classified as deserts</div><div class="stat-sub">48.9% of analyzed tracts</div></div>
-            <div class="stat" role="listitem"><div class="stat-num">2.06M</div><div class="stat-label">Residents in desert tracts</div><div class="stat-sub">49.3% of the analyzed population</div></div>
-            <div class="stat" role="listitem"><div class="stat-num">663</div><div class="stat-label">Board pharmacy records</div><div class="stat-sub">September 4, 2026 extract</div></div>
-            <div class="stat highlight" role="listitem"><div class="stat-num">264</div><div class="stat-label">Portland three-county core</div><div class="stat-sub">39.8% · Multnomah, Washington, Clackamas</div></div>
-          </div>
-        </div>
-        <div class="evidence-banner"><span class="status-pill">Research baseline</span><p>September BOP-linked results, not a new ACS2024 analysis. Population source-year provenance remains unresolved; pharmacy coordinates require validation. <a href="#sources">Read limitations</a></p></div>
-      </div>
-    </section>
+    <div class="evidence-banner"><span class="status-pill">Supplied results</span><p>The new workbook’s totals and map joins have been checked. Its pharmacy cohort, coordinates and travel estimates have <strong>not</strong> been independently rerun here. <a href="#sources">Understand the two analysis versions</a></p></div>
+  </div></section>
 
-    <section id="map" class="map-section">
-      <div class="container map-section-head"><div><span class="eyebrow">Explore the evidence</span><h2>Oregon pharmacy access map</h2><p class="muted">Choose a view, zoom to a community, or select a tract. Pharmacy markers summarize records at existing coordinates, not verified storefront locations.</p></div></div>
-      <div class="map-shell">
-        <aside class="map-sidebar" aria-label="Map controls and information">
-          <div class="control-group">
-            <label class="control-title" for="map-mode">Map view</label>
-            <select id="map-mode" disabled><option value="desert">Pharmacy desert tracts</option><option value="density">Desert + population density</option><option value="svi">Desert + social vulnerability</option></select>
-            <p id="mode-help" class="small muted">Stored September desert classification; no new thresholds applied.</p>
-          </div>
-          <fieldset class="access-type-controls">
-            <legend class="control-title">Access point types</legend>
-            <label class="toggle-row"><input type="checkbox" id="layer-pharmacies" checked disabled><span class="type-dot regular"></span><span>Regular pharmacies <strong>661</strong></span></label>
-            <label class="toggle-row"><input type="checkbox" id="layer-lockers" checked disabled><span class="type-dot locker"></span><span>Prescription lockers <strong>19 records*</strong></span></label>
-            <label class="toggle-row"><input type="checkbox" id="layer-kiosks" checked disabled><span class="type-dot kiosk"></span><span>Prescription kiosks <strong>1</strong></span></label>
-            <label class="toggle-row"><input type="checkbox" id="layer-remote" checked disabled><span class="type-dot remote"></span><span>Remote dispensing <strong>1</strong></span></label>
-            <p class="small muted">*18 locker records mapped; one conflicting location withheld. Records may share a site.</p>
-            <div class="access-focus-buttons"><button type="button" id="focus-lockers" disabled>View lockers</button><button type="button" id="focus-kiosks" disabled>View kiosk</button></div>
+  <section id="map" class="map-section">
+    <div class="container map-section-head"><div><span class="eyebrow">Interactive atlas</span><h2>See the overlap. Explore the context.</h2><p class="muted">The map opens on the Portland metro with all 495 poster-cohort pharmacies plotted. Select a pharmacy dot for its name and street address, or select a tract, search its GEOID, or zoom to a community.</p></div></div>
+    <div class="map-shell">
+      <aside class="map-sidebar" aria-label="Map controls and information">
+        <div class="control-group"><label class="control-title" for="map-mode">Map view</label>
+          <select id="map-mode" disabled><option value="svi">Desert + social vulnerability</option><option value="desert">Pharmacy desert tracts</option><option value="vulnerability">Social vulnerability only</option><option value="density">Density within desert tracts</option><option value="resilience">Single-access dependency</option></select>
+          <p id="mode-help" class="small muted">Supplied poster scenario: desert status and high SVI shown separately.</p>
+        </div>
+        <div class="control-group"><label class="control-title" for="county-filter">Focus on a county</label><select id="county-filter" disabled><option value="">All Oregon counties</option></select>
+          <div class="zoom-grid"><button class="zoom-btn" data-zoom="oregon" disabled>Oregon</button><button class="zoom-btn" data-zoom="portland" disabled>Portland metro</button><button class="zoom-btn" data-zoom="salem" disabled>Salem</button><button class="zoom-btn" data-zoom="eugene" disabled>Eugene</button><button class="zoom-btn" data-zoom="bend" disabled>Bend</button><button class="zoom-btn" data-zoom="medford" disabled>Medford</button></div>
+        </div>
+        <div class="control-group"><label class="control-title" for="tract-search">Find a tract</label><form id="tract-form"><input id="tract-search" placeholder="11-digit GEOID" inputmode="numeric" maxlength="11" aria-describedby="search-status"><button type="submit" disabled>Find</button></form><p id="search-status" class="small muted" role="status"></p></div>
+        <div class="control-group pharmacy-layer-group"><span class="control-title">Pharmacy locations</span>
+          <label class="toggle-row pharm-toggle"><input type="checkbox" id="layer-pharmacies" checked disabled><span class="type-dot cohort"></span><span>Community pharmacies <strong>495</strong><small>Poster cohort · select a dot for the address</small></span></label>
+          <div class="pharm-key"><span><i class="pk-dot"></i>Pharmacy</span><span><i class="pk-dot keystone"></i>Keystone (only pharmacy in range for ≥1 tract) <strong>141</strong></span></div>
+        </div>
+        <div class="control-group info-card"><h3 class="control-title">Selected tract</h3><div id="info-content" class="info-content" aria-live="polite"><p class="info-empty">Select a tract to see the supplied classification, population and vulnerability score.</p></div></div>
+        <details class="layer-settings"><summary>Lockers, kiosks &amp; remote dispensing</summary>
+          <fieldset class="access-type-controls"><legend class="control-title">Separate access types</legend>
+            <label class="toggle-row"><input type="checkbox" id="layer-lockers" disabled><span class="type-dot locker"></span><span>Prescription lockers <strong>19 rows*</strong></span></label>
+            <label class="toggle-row"><input type="checkbox" id="layer-kiosks" disabled><span class="type-dot kiosk"></span><span>Prescription kiosk <strong>1</strong></span></label>
+            <label class="toggle-row"><input type="checkbox" id="layer-remote" disabled><span class="type-dot remote"></span><span>Remote dispensing <strong>1</strong></span></label>
+            <p class="small muted">*18 locker rows are mapped; one conflicting location is withheld. Switching points does not recalculate tract classifications.</p>
+            <div class="access-focus-buttons"><button id="focus-lockers" type="button" disabled>View lockers</button><button id="focus-kiosks" type="button" disabled>View kiosk</button></div>
           </fieldset>
-          <div class="control-group">
-            <label class="control-title" for="county-filter">Focus on a county</label>
-            <select id="county-filter" disabled><option value="">All Oregon counties</option></select>
-            <div class="zoom-grid">
-              <button class="zoom-btn" data-zoom="oregon" disabled>Oregon</button><button class="zoom-btn" data-zoom="portland" disabled>Portland metro</button>
-              <button class="zoom-btn" data-zoom="salem" disabled>Salem</button><button class="zoom-btn" data-zoom="eugene" disabled>Eugene</button>
-              <button class="zoom-btn" data-zoom="bend" disabled>Bend</button><button class="zoom-btn" data-zoom="medford" disabled>Medford</button>
-            </div>
-          </div>
-          <details class="layer-settings" open><summary>Map layers</summary>
-            <label class="toggle-row"><input type="checkbox" id="layer-tracts" checked disabled><span>Census tracts</span></label>
-            <label class="toggle-row"><input type="checkbox" id="layer-counties" checked disabled><span>County boundaries</span></label>
-            <label class="toggle-row"><input type="checkbox" id="layer-roads" checked disabled><span>Selected Portland highways</span></label>
-            <label class="toggle-row"><input type="checkbox" id="layer-neighborhoods" disabled><span>Portland neighborhoods</span></label>
-          </details>
-          <div class="control-group">
-            <label class="control-title" for="tract-search">Find an analyzed tract</label>
-            <form id="tract-form"><input id="tract-search" placeholder="11-digit GEOID" inputmode="numeric" maxlength="11" aria-describedby="search-status"><button type="submit" disabled>Find</button></form>
-            <p id="search-status" class="small muted" role="status"></p>
-          </div>
-          <div class="control-group info-card"><h3 class="control-title">Selection</h3><div id="info-content" class="info-content" aria-live="polite"><p class="info-empty">Select a tract to review its stored classification, population estimate, and source limitations.</p></div></div>
-        </aside>
-        <div class="map-wrap">
-          <div id="map-canvas" role="region" aria-label="Interactive map of Oregon pharmacy access"></div>
-          <div id="map-loading" class="map-loading" role="status"><div class="spinner"></div><span>Loading September baseline…</span></div>
-          <div id="map-status" class="map-status" aria-live="polite">661 regular · 1 kiosk · 1 remote site · 19 locker records*</div>
-          <details class="map-key" aria-label="Map legend" open><summary>Map key</summary><div class="legend-row"><span class="swatch swatch-desert"></span>Desert tract</div><div class="legend-row"><span class="swatch swatch-served"></span>Not classified as desert</div><div class="legend-row"><span class="swatch swatch-missing"></span>Not analyzed / no data</div><div class="legend-row"><span class="swatch swatch-pharm"></span>Regular pharmacies</div><div class="legend-row"><span class="type-dot locker"></span>L · Prescription lockers</div><div class="legend-row"><span class="type-dot kiosk"></span>K · Prescription kiosks</div><div class="legend-row"><span class="type-dot remote"></span>R · Remote dispensing</div><div id="dynamic-legend"></div><p>Shared coordinates are grouped.<br>Letter markers offset for visibility.</p></details>
-        </div>
+        </details>
+        <details class="layer-settings"><summary>Boundaries &amp; roads</summary>
+          <label class="toggle-row"><input type="checkbox" id="layer-tracts" checked disabled><span>Census tracts</span></label>
+          <label class="toggle-row"><input type="checkbox" id="layer-counties" checked disabled><span>County boundaries</span></label>
+          <label class="toggle-row"><input type="checkbox" id="layer-roads" checked disabled><span>Selected highways · OR 217 highlighted</span></label>
+          <label class="toggle-row"><input type="checkbox" id="layer-neighborhoods" disabled><span>Portland neighborhoods</span></label>
+        </details>
+      </aside>
+      <div class="map-wrap">
+        <div id="map-canvas" role="region" aria-label="Interactive map of supplied Oregon pharmacy-access results"></div>
+        <div id="map-loading" class="map-loading" role="status"><div class="spinner"></div><span>Loading poster results…</span></div>
+        <div id="map-status" class="map-status" aria-live="polite">Portland metro · 495 poster-cohort pharmacies</div>
+        <details class="map-key" aria-label="Map legend" open><summary>Map key</summary><div id="dynamic-legend"></div><p class="key-note">Supplied results · estimated access, not routed</p></details>
       </div>
-      <div class="container map-note"><strong>Separate access types:</strong> The 663-record Board baseline includes 661 regular pharmacies, one prescription kiosk (PPK), and one remote-dispensing site (RDSP). The 19 locker-list records are a separate layer, not 19 additional full-service pharmacies. Switching layers does not recalculate desert status.</div>
-      <div class="container map-note"><strong>Location-quality caution:</strong> The Board baseline shares 167 distinct coordinate pairs. Existing locker coordinates are also approximate; one conflicting Hillsboro city/ZIP record is withheld. Verify public eligibility and operating hours directly. OR 217 remains highlighted in blue in Portland.</div>
-      <div class="container">
-        <details class="access-directory"><summary>Browse lockers, kiosks, and remote-dispensing records</summary><p class="small muted">September 4, 2026 Board files. Parent-pharmacy licenses can appear more than once; listing does not confirm unrestricted public access. Prescription kiosks here dispense prescriptions, not medication-disposal kiosks.</p><div id="access-directory-content" aria-live="polite">Loading access-point records…</div></details>
-      </div>
-    </section>
+    </div>
+    <div class="container map-note"><strong>Interpretation:</strong> “Neither” means neither displayed flag, not verified adequate access. Gray tracts lack a matched workbook record. Pharmacy dots are the 495 community pharmacies used in the poster analysis, plotted at their geocoded addresses; verify hours and services directly.</div>
+    <div class="container"><details class="access-directory"><summary>Browse lockers, kiosks, and remote-dispensing records</summary><p class="small muted">September 4, 2026 Board listings. Nineteen locker rows contain 17 distinct address strings; lockers are not added to pharmacy totals. Verify eligibility, services, hours and locations directly.</p><div id="access-directory-content" aria-live="polite">Loading access-point records…</div></details></div>
+  </section>
 
-    <section id="findings" class="findings">
-      <div class="container">
-        <div class="section-head"><span class="eyebrow">What this baseline supports</span><h2>Population burden, with context</h2><p class="muted">The stored September results replace the older mixed-source 801-pharmacy display. They remain research estimates, not validated patient-level access measurements.</p></div>
-        <div class="finding-grid">
-          <article class="finding-card"><div class="finding-num">48.9%</div><h3>Tract-level access gaps</h3><p>485 of 992 analyzed tracts meet the stored distance-based classification. Nine additional map geometries are explicitly marked not analyzed, rather than adequate access.</p></article>
-          <article class="finding-card"><div class="finding-num">49.3%</div><h3>Residents in classified tracts</h3><p>The baseline estimates 2,059,642 residents in desert tracts. This does not mean every resident personally exceeds the distance threshold; the population source year still needs verification.</p></article>
-          <article class="finding-card"><div class="finding-num">39.8%</div><h3>Pharmacy records in the core metro</h3><p>264 of 663 Board records are in Multnomah, Washington, and Clackamas counties. This is the three-county core, not the five-county Oregon MSA.</p></article>
-        </div>
-      </div>
-    </section>
+  <section id="findings" class="findings"><div class="container">
+    <div class="section-head"><span class="eyebrow">Read the results carefully</span><h2>Two barriers. One place to investigate.</h2><p class="muted">These counts reconcile to the supplied 993-tract workbook. They describe geographic screening and community context, not individual access or a plan’s compliance.</p></div>
+    <div class="overlap-strip"><div><span class="overlap-mark dual"></span><strong>27</strong><span>Desert + high SVI</span></div><div><span class="overlap-mark desert"></span><strong>167</strong><span>Desert only</span></div><div><span class="overlap-mark vulnerable"></span><strong>221</strong><span>High SVI only</span></div><div><span class="overlap-mark neither"></span><strong>578</strong><span>Neither flag</span></div></div>
+    <div class="metro-feature"><div><span class="eyebrow">Portland three-county core</span><h3>Look beyond the statewide average.</h3><p>Multnomah, Washington and Clackamas contain 5 supplied dual-burden tracts with 23,848 residents. Explore the map at neighborhood scale before deciding where to investigate.</p><button class="btn btn-primary" id="metro-cta">Explore Portland</button></div><dl><div><dt>Desert tracts</dt><dd>68 / 418</dd></div><div><dt>High-SVI tracts</dt><dd>88</dd></div><div><dt>Desert-tract residents</dt><dd>310,856</dd></div></dl></div>
+    <div id="sherwood" class="sherwood-case">
+      <figure><button class="poster-open" data-image="images/poster-sherwood.webp" data-title="Sherwood: supplied poster reference"><img src="images/poster-sherwood.webp" alt="Supplied Sherwood satellite reference showing the edge of a pharmacy cluster" width="1323" height="900" loading="lazy"><span>Enlarge Sherwood figure ↗</span></button></figure>
+      <div class="sherwood-copy"><span class="eyebrow">Case example · Washington County</span><h3>Sherwood: close to a pharmacy cluster, still past the line.</h3><p>Even in the suburban metro, neighborhoods can sit just beyond the 1-mile urban threshold from the nearest pharmacy.</p><p class="small muted">Sherwood case example. Pharmacy locations and distances shown in this image remain source-reported.</p></div>
+    </div>
+  </div></section>
 
-    <section class="county-breakdown" id="county-results">
-      <div class="container"><div class="section-head"><span class="eyebrow">County comparisons</span><h2>Where classified tracts concentrate</h2><p class="muted">All 36 counties are included. Counts use analyzed tracts only; small county denominators can produce large percentages. Select a county name to focus the map.</p></div>
-        <div class="county-table-wrap"><table class="county-table" id="county-table"><caption class="sr-only">September baseline county results</caption><thead><tr><th scope="col">County</th><th scope="col">Desert tracts</th><th scope="col">% of tracts</th><th scope="col">Residents in desert tracts</th><th scope="col">Share</th></tr></thead><tbody></tbody></table></div>
-      </div>
-    </section>
+  <section class="county-breakdown" id="county-results"><div class="container">
+    <div class="section-head"><span class="eyebrow">County comparisons</span><h2>Find the local context.</h2><p class="muted">All 36 counties, using supplied poster results. Select a county to focus the map. County boundaries are not CCO service-area boundaries.</p></div>
+    <label class="county-search-label" for="county-search">Search counties</label><input id="county-search" class="county-search" type="search" placeholder="Try Multnomah or Lane"><p id="county-search-status" class="small muted" role="status"></p>
+    <div class="county-table-wrap"><table class="county-table" id="county-table"><caption class="sr-only">Supplied poster county results</caption><thead><tr><th scope="col">County</th><th scope="col">Desert tracts</th><th scope="col">Tract share</th><th scope="col">Residents in desert tracts</th><th scope="col">Dual-burden tracts</th></tr></thead><tbody></tbody></table></div>
+  </div></section>
 
-    <section id="sources" class="methodology">
-      <div class="container">
-        <div class="section-head"><span class="eyebrow">Source transparency</span><h2>What is mapped. What comes next.</h2><p class="muted">A newer recommended source is not automatically an input to the current map. Keep observation periods, release dates, and analysis versions separate.</p></div>
-        <div class="source-columns">
-          <article class="method-card"><span class="status-pill">Used in this map</span><h3>September analysis baseline</h3><dl class="data-list">
-            <dt>Pharmacy records and access types</dt><dd>September 4, 2026 Oregon Board of Pharmacy extract: 661 RP records, one PPK kiosk, and one RDSP remote-dispensing site (663 total). The separate PPL file contains 19 locker records, including repeat physical addresses; 18 are mapped and one location conflict is withheld. Existing coordinates and public-access eligibility require review. <a href="https://www.oregon.gov/pharmacy/pages/public-records.aspx" target="_blank" rel="noopener">Board records process ↗</a></dd>
-            <dt>Tract geography</dt><dd>Existing 2020 TIGER-based display geometry: 1,001 shapes, with 992 matched analysis rows and nine unclassified shapes.</dd>
-            <dt>Population</dt><dd>Stored ACS-derived values total 4,176,346 across analyzed tracts. The original Census endpoint/year has not been independently recovered. Do not label these values verified ACS2022 or 2020 decennial counts.</dd>
-            <dt>Vulnerability</dt><dd>CDC/ATSDR SVI 2022 fields. The state-versus-national ranking reference requires confirmation before interpreting the stored 0.75 cutoff as an Oregon or national quartile. <a href="https://www.atsdr.cdc.gov/place-health/php/svi/svi-data-documentation-download.html" target="_blank" rel="noopener">CDC methodology ↗</a></dd>
-          </dl></article>
-          <article class="method-card"><span class="status-pill planned">Recommended · not applied</span><h3>Versioned data upgrade</h3><dl class="data-list">
-            <dt>ACS 2020–2024 + TIGER2024</dt><dd>Update tract estimates and margins of error, then join matching geography. Released January 29, 2026; a period estimate, not measured 2026 population. <a href="https://www.census.gov/programs-surveys/acs/news/data-releases/2024/release.html" target="_blank" rel="noopener">Census release ↗</a></dd>
-            <dt>SVI 2022 + RUCA 2020</dt><dd>Use the corrected SVI file with an explicit ranking basis, and assess the RUCA tract codes released July 2025. Do not silently change rurality thresholds. <a href="https://www.atsdr.cdc.gov/place-health/php/svi/svi-data-documentation-download.html" target="_blank" rel="noopener">CDC methodology ↗</a> · <a href="http://www.ers.usda.gov/data-products/rural-urban-commuting-area-codes/documentation" target="_blank" rel="noopener">USDA methods ↗</a></dd>
-            <dt>Targeted routing</dt><dd>Use inhabited 2020 Census blocks and a dated road network to assess within-tract variation, including cross-border alternatives. This site does not calculate current network travel times. <a href="https://www.census.gov/programs-surveys/decennial-census/about/rdo/summary-files.html" target="_blank" rel="noopener">Census block data ↗</a></dd>
-          </dl></article>
-        </div>
-        <details class="methods-detail" id="methodology" open><summary>Classification and interpretation</summary><div>
-          <p>The displayed <code>is_desert_2026</code> field is preserved from the master dataset. Its stored results match a nearest-pharmacy distance threshold of greater than 1 mile where <code>is_urban = 1</code> and greater than 10 miles otherwise. The latter currently includes both suburban and rural categories. This is not the USC suburban 2-mile rule.</p>
-          <p>Distances shown are stored centroid-based straight-line estimates, not driving routes. Population-weighting of the origins is not independently established here. Legacy drive-time estimates and PVI scores from the older pharmacy layer are withheld to avoid mixing analysis versions.</p>
-          <p>The density view shades only desert tracts with a continuous, log-scaled population-density overlay. Darker blue indicates greater density, not a validated priority score. The vulnerability view highlights the stored dual-burden flag; SVI ranking provenance and current location quality limit interpretation.</p>
-          <p>Geographic proximity does not establish hours, medication stock, public dispensing eligibility, delivery access, transportation options, or payer-network participation. A pharmacy-count difference between incompatible source lists is not evidence of confirmed closures.</p>
-        </div></details>
+  <section id="action" class="action-section"><div class="container">
+    <div class="section-head"><span class="eyebrow">For health plans</span><h2>Protect refill continuity before access is disrupted.</h2><p class="muted">Use this screening view to choose the next question, not to declare compliance, predict savings, or assume every member can use a listed pharmacy.</p></div>
+    <div class="action-list">
+      <article><span class="action-index">01</span><div><h3>Validate usable access</h3><p>Confirm addresses, current operations, hours, public eligibility and plan participation. Replace straight-line travel estimates with dated road-network routing.</p></div></article>
+      <article><span class="action-index">02</span><div><h3>Locate single-access dependencies</h3><p>Review tracts with one pharmacy in the supplied range, then test realistic alternatives. Treat the flag as a screening signal, not a prediction that a pharmacy will close.</p></div></article>
+      <article><span class="action-index">03</span><div><h3>Match the response to the barrier</h3><p>Evaluate transportation, delivery, remote dispensing or lockers alongside local pharmacy support. These services are distinct options, not interchangeable substitutes.</p></div></article>
+      <article><span class="action-index">04</span><div><h3>Measure what happens next</h3><p>In a governed member-level analysis, track completed transfers, successful fills, refill gaps and measure-specific proportion of days covered. This public map contains no member data.</p></div></article>
+    </div>
+    <div class="policy-visual">
+      <div class="policy-visual-head"><span class="pv-flag">Evidence boundary</span><h3>Quality relevance is not a compliance finding.</h3></div>
+      <div class="policy-cards">
+        <article class="pv-card stars">
+          <div class="pv-top"><div class="pv-big">3<span>×</span></div><div class="pv-label"><strong>Measure weight</strong><span>CMS 2027 Star Ratings · Part D adherence</span></div></div>
+          <ul class="pv-chips" aria-label="Weight-3 adherence measures"><li><span aria-hidden="true">💊</span>Diabetes</li><li><span aria-hidden="true">💊</span>RAS antagonists</li><li><span aria-hidden="true">💊</span>Statins</li></ul>
+          <p>CMS gives all three adherence measures weight 3 in the published 2027 measures.</p>
+          <p class="pv-caveat">This study does not measure a Star Ratings effect.</p>
+          <a class="pv-link" href="https://www.cms.gov/files/document/2027-star-ratings-measures.pdf" target="_blank" rel="noopener">CMS measures ↗</a>
+        </article>
+        <article class="pv-card network">
+          <div class="pv-top"><div class="pv-big">95<span>%</span></div><div class="pv-label"><strong>Member-access standard</strong><span>Oregon 2026 CCO network protocol · pharmacy</span></div></div>
+          <ul class="pv-chips" aria-label="Threshold types"><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 11l1.5-4.5A2 2 0 0 1 8.4 5h7.2a2 2 0 0 1 1.9 1.5L19 11m-14 0h14v5H5zm2 5v2m10-2v2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="8" cy="13.5" r="1" fill="currentColor"/><circle cx="16" cy="13.5" r="1" fill="currentColor"/></svg>Driving time</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="11" r="2" fill="currentColor"/></svg>or distance</li><li>By geography</li></ul>
+          <p>Pharmacy access is assessed against geography-specific driving-time or distance thresholds.</p>
+          <p class="pv-caveat">Tract-level screening is not that member-based test.</p>
+          <a class="pv-link" href="https://www.oregon.gov/oha/HSD/OHP/CCO/OR2026_DSN_Protocol_F1.pdf" target="_blank" rel="noopener">OHA protocol ↗</a>
+        </article>
       </div>
-    </section>
+    </div>
+  </div></section>
 
-    <section class="research-context" id="research">
-      <div class="container research-grid">
-        <div><span class="eyebrow">Research reference</span><h2>USC Pharmacy Access Initiative</h2><p>The November 2022 USC article describes a context-sensitive pharmacy-shortage framework. It is a methodological reference, not the algorithm implemented in this Oregon baseline. <a href="https://today.usc.edu/usc-map-identifies-pharmacy-deserts/" target="_blank" rel="noopener">Read the USC article ↗</a></p><p class="muted">Verify the underlying income, vehicle-ownership, urbanicity, and distance methods before replication. Its historical national prevalence is not directly comparable to Oregon’s tract estimate.</p></div>
-        <div class="threshold-list" aria-label="Thresholds reported by USC in November 2022"><div><span>Rural</span><strong>&gt;10 miles</strong></div><div><span>Suburban</span><strong>&gt;2 miles</strong></div><div><span>Urban</span><strong>&gt;1 mile</strong></div><div><span>Low income + low vehicle ownership</span><strong>&gt;0.5 mile</strong></div><p class="small muted">Reported in the <a href="https://today.usc.edu/usc-map-identifies-pharmacy-deserts/" target="_blank" rel="noopener">USC article</a>; not newly applied to this map.</p></div>
-      </div>
-    </section>
+  <section id="sources" class="methodology"><div class="container">
+    <div class="section-head"><span class="eyebrow">Data &amp; interpretation</span><h2>Keep the analysis versions distinct.</h2><p class="muted">A new display is not an independent rerun. This update imports the attached workbook’s tract records and checks their internal reconciliation.</p></div>
+    <div class="source-columns">
+      <article class="method-card"><span class="status-pill">Mapped here</span><h3>Supplied October poster scenario</h3><dl class="data-list">
+        <dt>Inventory and results</dt><dd>The workbook describes 495 accessible outlets and 993 populated tracts; 194 are flagged as deserts. The 495-site roster (names, street addresses and geocoded coordinates) is plotted on the map.</dd>
+        <dt>Population and geography</dt><dd>The workbook identifies 2020 Census centers-of-population counts totaling 4,237,256, with population-weighted origins. Those origins were not independently verified here. All 993 GEOIDs join the site’s existing 2020 TIGER-based geometry; eight additional shapes have no workbook record.</dd>
+        <dt>Social vulnerability</dt><dd>The workbook describes Oregon-ranked CDC/ATSDR SVI 2022, with high SVI ≥0.75. Its ACS demographic counts use 2018–2022 estimates and are distinct from its 2020 resident totals. <a href="https://www.atsdr.cdc.gov/place-health/media/pdfs/2025/01/SVI2022Documentation.pdf" target="_blank" rel="noopener">CDC SVI documentation ↗</a></dd>
+      </dl></article>
+      <article class="method-card"><span class="status-pill planned">Separate inventory review</span><h3>Reviewed human-access candidates</h3><dl class="data-list">
+        <dt>494 retained records</dt><dd>The earlier approved v2 screening retained 495 records before excluding Pet Pharmacy NW from the human cohort. The resulting 494 comprise 448 community candidates, 41 unresolved-scope records, three differentiated-service records, one kiosk and one remote-dispensing record.</dd>
+        <dt>Not interchangeable with 495</dt><dd>The new poster scenario uses a 495-outlet count. Its reconciliation with the approved veterinary exclusion and separate service categories remains unresolved. The map shows them as the poster cohort’s community pharmacies, not independently verified storefronts.</dd>
+        <dt>Pharmacy map markers</dt><dd>The map now plots the 495 poster-cohort community pharmacies (name, street address and coordinates from the poster analysis roster), with the 141 keystone pharmacies highlighted. The older 663-license point layer has been removed from the map.</dd>
+      </dl></article>
+    </div>
+    <details class="methods-detail" id="methodology" open><summary>How to interpret the map</summary><div>
+      <p><strong>Source-described rule:</strong> urban tracts (≥500 people/sq. mile) more than 1 mile, rural tracts more than 10 miles, or more than 15 minutes estimated drive from a pharmacy. Estimated drive time is straight-line distance ×1.3 at 25 mph urban or 40 mph rural; it is not road-network routing.</p>
+      <p><strong>Missing scores:</strong> the workbook has 992 valid SVI scores and one populated tract without a valid score. That tract is labeled SVI unavailable, not low vulnerability. Eight other geometries are not in the workbook.</p>
+      <p><strong>What was checked:</strong> 993 unique GEOIDs, all geometry matches, statewide and tri-county population/category totals, and all 36 county summaries. No new pharmacy eligibility review, address correction, population-origin validation or access computation was performed for this web update.</p>
+      <p><strong>What cannot be inferred:</strong> individual access, payer-network participation, hours, stock, causal effects, adherence improvements, regulatory compliance or cost savings. SVI is an area-level context measure, not an individual diagnosis.</p>
+    </div></details>
+    <details class="methods-detail"><summary>Future data and routing upgrades</summary><div><p>Reconcile the 495-outlet scenario against the approved human-access inventory, validate address-level coordinates and population-weighted origins, then rerun access with a dated road network. Preserve separate results for restricted services, specialty/mail order, remote dispensing, kiosks and lockers.</p><p>The USC pharmacy-shortage framework is a methodological reference, not the algorithm implemented in this display. <a href="https://today.usc.edu/usc-map-identifies-pharmacy-deserts/" target="_blank" rel="noopener">Read the USC research overview ↗</a></p></div></details>
+  </div></section>
+  <section id="about" class="about"><div class="container about-inner"><div><span class="eyebrow">About the project</span><h2>RxAccess Oregon</h2><p>A pharmacy-access research and decision-support project by <strong>Brandon San, MBA, MSHI, PharmD Candidate 2027</strong>, connecting health informatics, pharmacy practice and equitable access.</p><p>Poster 161: Geographic and Social Vulnerability Drivers of Pharmacy Access in Oregon: A Statewide Census-tract Analysis to Inform Medicaid Managed Care Strategy.</p><p class="contact"><a href="mailto:bran@pacificu.edu">bran@pacificu.edu</a></p></div><aside class="cite-card"><h3>Research use only</h3><p>Not a pharmacy finder, clinical recommendation or regulatory determination. Verify facility details directly. Findings do not represent the views of Pacific University or the University of Illinois Chicago.</p><p class="muted small">Website revision: October 27, 2026.<br>Supplied workbook: October 24, 2026.<br>Board snapshot: September 4, 2026.</p></aside></div></section>
+</main>
+<footer class="site-footer"><div class="container footer-inner"><p>© 2026 Brandon San · RxAccess Oregon</p><p class="muted small">MapLibre / Leaflet · OpenFreeMap · OpenStreetMap contributors<br>Research inputs: Oregon Board of Pharmacy · U.S. Census Bureau · CDC/ATSDR<br>Poster images retain their original basemap credits.</p></div></footer>
+<dialog id="figure-dialog" aria-labelledby="figure-title"><div class="dialog-head"><h2 id="figure-title">Poster reference</h2><button id="close-figure" aria-label="Close enlarged graphic">Close ×</button></div><p class="small muted">Supplied poster image. Site-level and access claims are source-reported, not independently rerun.</p><div class="figure-toolbar"><button id="zoom-figure" aria-pressed="false">Zoom in</button><span>Zoom for detail, then scroll across the image.</span></div><div class="figure-scroll"><img id="enlarged-figure" alt=""></div></dialog>
+<script data-pplx-inline-edit>
+(function () {
+  if (window === window.top) return;
 
-    <section id="action" class="action-section">
-      <div class="container"><div class="section-head"><span class="eyebrow">From research to decisions</span><h2>Target the next question, not just the next dot.</h2><p class="muted">These are candidate investigation pathways, not demonstrated intervention effects or a plan-specific network-adequacy determination.</p></div>
-        <div class="action-list">
-          <article><span class="action-index">01</span><div><h3>Validate geographic access</h3><p>Audit addresses and shared coordinates, confirm public-facing dispensing, and test road-network travel from inhabited areas before selecting intervention sites.</p></div></article>
-          <article><span class="action-index">02</span><div><h3>Understand compounded barriers</h3><p>Review vehicle availability, disability, language, and financial barriers alongside SVI. Evaluate transportation or delivery options without double-counting the same vulnerability domains.</p></div></article>
-          <article><span class="action-index">03</span><div><h3>Identify current payer partners</h3><p>Use current CCO service areas and OHP enrollment context; overlapping and partial-county coverage require care. Actual network analysis needs participating-pharmacy directories and appropriately governed member data. <a href="https://www.oregon.gov/oha/hsd/ohp/pages/coordinated-care-organizations.aspx" target="_blank" rel="noopener">OHA CCOs ↗</a> · <a href="https://www.oregon.gov/oha/hpa/analytics/pages/medicaid-enrollment.aspx" target="_blank" rel="noopener">OHP enrollment ↗</a></p></div></article>
-          <article><span class="action-index">04</span><div><h3>Connect with broader community need</h3><p>Use the 2026 OHSU Areas of Unmet Health Care Need report and variables to contextualize local primary, dental, and mental-health access. This complements, rather than replaces, pharmacy-access analysis. <a href="https://www.ohsu.edu/oregon-office-of-rural-health" target="_blank" rel="noopener">OHSU resources ↗</a></p></div></article>
-        </div>
-      </div>
-    </section>
-    <section id="about" class="about"><div class="container about-inner"><div><span class="eyebrow">About the project</span><h2>RxAccess Oregon</h2><p>A geospatial pharmacy-access research and decision-support project by <strong>Brandon San, MBA, MSHI, PharmD Candidate 2027</strong>, connecting health informatics, pharmacy practice, and equitable access.</p><p>Developed in the context of the University of Illinois Chicago Master of Health Informatics capstone and Pacific University pharmacy research. This public-data prototype is distinct from future governed payer analyses.</p><p class="contact"><a href="mailto:bran@pacificu.edu">bran@pacificu.edu</a></p></div><aside class="cite-card"><h3>Research use only</h3><p>Not a pharmacy finder, clinical recommendation, or proof of regulatory compliance. Verify facility details directly. Findings do not represent the views of the University of Illinois Chicago or Pacific University.</p><p class="muted small">Website revision: September 25, 2026.<br>Pharmacy baseline: September 4, 2026.<br>Source recommendations reviewed: September 2026.</p></aside></div></section>
-  </main>
-  <footer class="site-footer"><div class="container footer-inner"><p>© 2026 Brandon San · RxAccess Oregon</p><p class="muted small">MapLibre GL JS · OpenFreeMap · OpenStreetMap contributors<br>Research layers: Oregon Board of Pharmacy · U.S. Census Bureau · CDC/ATSDR</p></div></footer>
-</body>
-</html>
+  const allowedParentOrigins = ["https://www.perplexity.ai","https://perplexity.ai","https://testing.perplexity.ai","https://staging.perplexity.ai","https://*.preview.i.perplexity.ai","http://perplexity.localhost","http://localhost:1420","http://127.0.0.1:1420","http://localhost:3000","http://127.0.0.1:3000","http://localhost:5173","http://127.0.0.1:5173"];
+  const MAX_FONT_BYTES = 500 * 1024;
+  const MAX_TOTAL_FONT_BYTES = 2 * 1024 * 1024;
+  const DEFAULT_LINE_HEIGHT = 16;
+  let scrollForwarding = false;
+  let scrollRaf = 0;
+  let trustedTopOrigin = null;
+
+  // Allow entries like "https://*.preview.i.perplexity.ai" — the wildcard
+  // matches a single DNS label (no dots), so "https://*.foo" cannot stretch
+  // across multiple labels.
+  function matchesAllowedOrigin(origin) {
+    if (!origin) return false;
+    for (const entry of allowedParentOrigins) {
+      if (!entry.includes("*")) {
+        if (entry === origin) return true;
+        continue;
+      }
+      const pattern = new RegExp(
+        "^" +
+          entry.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "[^.]+") +
+          "$",
+      );
+      if (pattern.test(origin)) return true;
+    }
+    return false;
+  }
+
+  // Trust decision: when the sender is same-origin-visible (event.origin is a
+  // real origin like https://www.perplexity.ai) we trust event.origin directly.
+  // When event.origin is "null" (opaque broker srcdoc), we fall back to the
+  // broker's stamped `parentOrigin` to identify the top window. The fallback
+  // is claim-only — we rely on the browser's native `targetOrigin` enforcement
+  // on the response path (see postToTrustedTop) to ensure replies can't be
+  // delivered to anyone but the actual top window of that claimed origin.
+  function getTrustedParentOrigin(event) {
+    const forwardedParentOrigin =
+      typeof event.data.parentOrigin === "string" ? event.data.parentOrigin : null;
+    const parentOrigin = event.origin === "null" ? forwardedParentOrigin : event.origin;
+    return matchesAllowedOrigin(parentOrigin) ? parentOrigin : null;
+  }
+
+  // All responses go to window.top with targetOrigin = the allowlisted origin.
+  // An attacker that iframes us inside their own null-origin broker can claim
+  // any parentOrigin they like, but the browser will drop the reply whenever
+  // the real top's origin doesn't match — so the screenshot never leaves.
+  function postToTrustedTop(message) {
+    if (!trustedTopOrigin) return;
+    try {
+      window.top.postMessage(message, trustedTopOrigin);
+    } catch (_error) {}
+  }
+
+  const PICK_CAPABILITIES = ["pick"];
+  const PICK_CHAIN_LENGTH = 4;
+  const PICK_MAX_TEXT_CHARS = 120;
+  const PICK_MAX_HTML_CHARS = 300;
+
+  function truncate(value, maxChars) {
+    return value.length > maxChars ? value.slice(0, maxChars - 1) + "…" : value;
+  }
+
+  function isPickableElement(element) {
+    return (
+      element instanceof Element &&
+      element !== document.documentElement &&
+      element !== document.body
+    );
+  }
+
+  function resolvePickTarget(x, y) {
+    if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+    const element = document.elementFromPoint(x, y);
+    return isPickableElement(element) ? element.closest("svg") || element : null;
+  }
+
+  function pickLabel(element) {
+    if (element.id) return element.localName + "#" + element.id;
+    return [element.localName].concat(Array.from(element.classList).slice(0, 2)).join(".");
+  }
+
+  // Only attributes that help find the element in source. data-* values and URL
+  // query strings or fragments can carry tokens.
+  const PICK_ATTRIBUTES = new Set([
+    "id",
+    "class",
+    "name",
+    "type",
+    "role",
+    "alt",
+    "aria-label",
+    "href",
+    "src",
+  ]);
+
+  function pickAttributeValue(attribute) {
+    return attribute.name === "href" || attribute.name === "src"
+      ? attribute.value.split(/[?#]/)[0]
+      : attribute.value;
+  }
+
+  function describePickElement(element) {
+    const chain = [];
+    for (
+      let current = element;
+      isPickableElement(current) && chain.length < PICK_CHAIN_LENGTH;
+      current = current.parentElement
+    ) {
+      chain.unshift(current);
+    }
+    const attributes = Array.from(element.attributes)
+      .filter((attribute) => PICK_ATTRIBUTES.has(attribute.name))
+      .map((attribute) => ` ${attribute.name}="${pickAttributeValue(attribute).replace(/"/g, "&quot;")}"`)
+      .join("");
+    const text = (element.innerText || element.textContent || "").replace(/\s+/g, " ").trim();
+    return {
+      chain: chain.map(pickLabel),
+      html: truncate(`<${element.localName}${attributes}>`, PICK_MAX_HTML_CHARS),
+      text: text ? truncate(text, PICK_MAX_TEXT_CHARS) : undefined,
+    };
+  }
+
+  // Hover asks once per frame, and innerText on a large section forces layout,
+  // so only the rect is re-read while the pointer stays on the same element.
+  // Clicks ask for fresh details since the page may have changed the element.
+  let lastPick = null;
+
+  function describePickTarget(element, fresh) {
+    if (fresh || lastPick?.element !== element) {
+      lastPick = { element, details: describePickElement(element) };
+    }
+    const rect = element.getBoundingClientRect();
+    return {
+      rect: { x: rect.left, y: rect.top, width: rect.width, height: rect.height },
+      ...lastPick.details,
+    };
+  }
+
+  function inlineAll(original, clone) {
+    if (original.nodeType !== 1 || clone.nodeType !== 1) return;
+
+    try {
+      const computedStyle = getComputedStyle(original);
+      // cssText on a computed style is the serialized declaration in modern
+      // Chromium/Safari — a single read beats enumerating ~400 longhand
+      // properties. Firefox returns "" here, so we fall back on empty.
+      const serialized = computedStyle.cssText;
+      if (serialized) {
+        clone.style.cssText = serialized;
+      } else {
+        const parts = new Array(computedStyle.length);
+        for (let index = 0; index < computedStyle.length; index += 1) {
+          const property = computedStyle[index];
+          parts[index] = `${property}:${computedStyle.getPropertyValue(property)};`;
+        }
+        clone.style.cssText = parts.join("");
+      }
+    } catch (_error) {}
+
+    const originalChildren = original.children;
+    const clonedChildren = clone.children;
+    for (
+      let index = 0;
+      index < originalChildren.length && index < clonedChildren.length;
+      index += 1
+    ) {
+      inlineAll(originalChildren[index], clonedChildren[index]);
+    }
+  }
+
+  function extractFontUrl(srcValue) {
+    const matches = [
+      ...srcValue.matchAll(
+        /url\(["']?([^"')]+)["']?\)(?:\s*format\(["']?([^"')]+)["']?\))?/gi,
+      ),
+    ];
+    if (matches.length === 0) return null;
+    const woff2 = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff2"));
+    if (woff2) return woff2[1];
+    const woff = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff"));
+    if (woff) return woff[1];
+    return matches[0][1];
+  }
+
+  // Cache resolved font URL -> data URI across captures. Fonts on a page
+  // essentially never change, and a batch run emits multiple captures back to
+  // back — without this we'd refetch + re-base64 every time.
+  const fontDataUriCache = new Map();
+  const SRC_DECLARATION_RE = /src\s*:\s*[^;}]+/i;
+
+  async function fetchAsDataUri(url) {
+    if (fontDataUriCache.has(url)) return fontDataUriCache.get(url);
+    let dataUri = null;
+    try {
+      const response = await fetch(url, { mode: "cors", credentials: "omit" });
+      if (response.ok) {
+        const blob = await response.blob();
+        if (blob.size <= MAX_FONT_BYTES) {
+          dataUri = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () =>
+              resolve(typeof reader.result === "string" ? reader.result : null);
+            reader.onerror = () => resolve(null);
+            reader.readAsDataURL(blob);
+          });
+        }
+      }
+    } catch (_error) {
+      dataUri = null;
+    }
+    fontDataUriCache.set(url, dataUri);
+    return dataUri;
+  }
+
+  function collectFontFaceRuleTexts() {
+    const rules = [];
+    for (const sheet of document.styleSheets) {
+      let cssRules;
+      try {
+        cssRules = sheet.cssRules;
+      } catch (_error) {
+        continue;
+      }
+      if (!cssRules) continue;
+      for (const rule of cssRules) {
+        const cssText = rule.cssText || "";
+        if (cssText.startsWith("@font-face")) rules.push(cssText);
+      }
+    }
+    return rules;
+  }
+
+  async function buildInlinedFontCss() {
+    const ruleTexts = collectFontFaceRuleTexts();
+    if (ruleTexts.length === 0) return null;
+
+    const resolved = ruleTexts.map((cssText) => {
+      if (!SRC_DECLARATION_RE.test(cssText)) return null;
+      const srcMatch = cssText.match(/src\s*:\s*([^;}]+)[;}]/i);
+      if (!srcMatch) return null;
+      const url = extractFontUrl(srcMatch[1]);
+      if (!url) return null;
+      try {
+        return { cssText, url: new URL(url, document.baseURI).href };
+      } catch (_error) {
+        return null;
+      }
+    });
+
+    const dataUris = await Promise.all(
+      resolved.map((entry) => (entry ? fetchAsDataUri(entry.url) : Promise.resolve(null))),
+    );
+
+    const inlined = [];
+    let totalBytes = 0;
+    for (let index = 0; index < resolved.length; index += 1) {
+      const entry = resolved[index];
+      const dataUri = dataUris[index];
+      if (!entry || !dataUri) continue;
+      const approxBytes = dataUri.length * 0.75;
+      if (totalBytes + approxBytes > MAX_TOTAL_FONT_BYTES) break;
+      totalBytes += approxBytes;
+      inlined.push(entry.cssText.replace(SRC_DECLARATION_RE, `src: url("${dataUri}")`));
+    }
+    return inlined.length > 0 ? inlined.join("\n") : null;
+  }
+
+  function stripExternal(clone) {
+    const images = clone.querySelectorAll("img");
+    for (let index = 0; index < images.length; index += 1) {
+      const src = images[index].getAttribute("src");
+      if (src && !src.startsWith("data:")) images[index].removeAttribute("src");
+    }
+
+    const elements = clone.querySelectorAll("*");
+    for (let index = 0; index < elements.length; index += 1) {
+      const style = elements[index].style.cssText;
+      if (style && style.includes("url(")) {
+        elements[index].style.cssText = style.replace(
+          /url\(["']?(?!data:)[^)"']*["']?\)/gi,
+          "none",
+        );
+      }
+    }
+  }
+
+  function emitScroll() {
+    scrollRaf = 0;
+    if (!scrollForwarding) return;
+    postToTrustedTop({
+      type: "INLINE_EDIT_SCROLL",
+      scrollX: window.scrollX,
+      scrollY: window.scrollY,
+      capabilities: PICK_CAPABILITIES,
+    });
+  }
+
+  window.addEventListener(
+    "scroll",
+    function () {
+      if (!scrollForwarding || scrollRaf) return;
+      scrollRaf = requestAnimationFrame(emitScroll);
+    },
+    { passive: true, capture: true },
+  );
+
+  async function handleCaptureRequest(event) {
+    const requestId = event.data.requestId;
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    function postResult(dataUrl) {
+      postToTrustedTop({
+        type: "INLINE_EDIT_SCREENSHOT_RESULT",
+        requestId,
+        dataUrl,
+        scrollX,
+        scrollY,
+      });
+    }
+
+    try {
+      // Wait for any pending web fonts to resolve so both inline metrics and
+      // the @font-face inlining below see the same loaded faces.
+      if (document.fonts && document.fonts.ready) {
+        try {
+          await document.fonts.ready;
+        } catch (_error) {}
+      }
+
+      const clone = document.documentElement.cloneNode(true);
+      inlineAll(document.documentElement, clone);
+
+      const removedNodes = clone.querySelectorAll("script,link[rel=\"stylesheet\"],style");
+      for (let index = 0; index < removedNodes.length; index += 1) {
+        removedNodes[index].remove();
+      }
+
+      stripExternal(clone);
+
+      // Re-embed web fonts as data-URI @font-face rules so the SVG rasterizer
+      // can resolve them — external font URLs aren't fetched during
+      // foreignObject rendering, which would otherwise force a fallback face
+      // and change text metrics.
+      const inlinedFontCss = await buildInlinedFontCss();
+      if (inlinedFontCss) {
+        const styleEl = document.createElement("style");
+        styleEl.textContent = inlinedFontCss;
+        const head = clone.querySelector("head");
+        if (head) head.appendChild(styleEl);
+        else clone.insertBefore(styleEl, clone.firstChild);
+      }
+
+      const html = new XMLSerializer().serializeToString(clone);
+      const svg =
+        `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">` +
+        '<foreignObject width="100%" height="100%">' +
+        `<div xmlns="http://www.w3.org/1999/xhtml" style="width:${width}px;height:${height}px;overflow:hidden">` +
+        `<div style="position:relative;left:-${scrollX}px;top:-${scrollY}px">` +
+        html +
+        "</div></div></foreignObject></svg>";
+      const svgUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+      const image = new Image();
+      image.onload = function () {
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext("2d").drawImage(image, 0, 0);
+        postResult(canvas.toDataURL("image/png"));
+      };
+      image.onerror = function () {
+        postResult(null);
+      };
+      image.src = svgUrl;
+    } catch (_error) {
+      postResult(null);
+    }
+  }
+
+  window.addEventListener("message", function (event) {
+    if (!event.data) return;
+    // Only accept messages from the direct parent frame. Blocks sibling /
+    // unrelated-window postMessage senders that could otherwise reach us.
+    if (event.source !== window.parent) return;
+
+    const trustedParentOrigin = getTrustedParentOrigin(event);
+    if (!trustedParentOrigin) return;
+    trustedTopOrigin = trustedParentOrigin;
+
+    if (event.data.type === "INLINE_EDIT_PICK") {
+      const element = resolvePickTarget(event.data.x, event.data.y);
+      postToTrustedTop({
+        type: "INLINE_EDIT_PICK_RESULT",
+        seq: event.data.seq,
+        target: element ? describePickTarget(element, event.data.fresh === true) : null,
+      });
+      return;
+    }
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_START") {
+      scrollForwarding = true;
+      emitScroll();
+      return;
+    }
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_STOP") {
+      scrollForwarding = false;
+      if (scrollRaf) cancelAnimationFrame(scrollRaf);
+      scrollRaf = 0;
+      return;
+    }
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_BY") {
+      const { deltaX, deltaY, deltaMode } = event.data;
+      if (!scrollForwarding || !Number.isFinite(deltaX) || !Number.isFinite(deltaY)) return;
+      if (deltaMode !== 0 && deltaMode !== 1 && deltaMode !== 2) return;
+      const lineHeight =
+        parseFloat(getComputedStyle(document.documentElement).lineHeight) || DEFAULT_LINE_HEIGHT;
+      const scaleX = deltaMode === 1 ? lineHeight : deltaMode === 2 ? window.innerWidth : 1;
+      const scaleY = deltaMode === 1 ? lineHeight : deltaMode === 2 ? window.innerHeight : 1;
+      // The selection overlay receives the wheel event instead of this iframe.
+      // Instant scrolling preserves trackpad deltas even on smooth-scroll sites.
+      window.scrollBy({ left: deltaX * scaleX, top: deltaY * scaleY, behavior: "instant" });
+      emitScroll();
+      return;
+    }
+
+    if (event.data.type !== "INLINE_EDIT_CAPTURE_REQUEST") return;
+
+    handleCaptureRequest(event);
+  });
+})();
+
+</script></body></html>

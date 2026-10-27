@@ -1,4 +1,4 @@
-/* RxAccess Oregon: September baseline, with explicit provenance boundaries. */
+/* RxAccess Oregon: supplied October poster scenario, with explicit provenance boundaries. */
 (() => {
   const $ = id => document.getElementById(id);
   const root = document.documentElement;
@@ -6,7 +6,7 @@
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const css = name => getComputedStyle(root).getPropertyValue(name).trim();
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  let theme = 'light';
   let map, ready = false, tracts, counties, stats;
   const modalityLabels = {lockers:'Prescription locker (PPL)', kiosks:'Prescription kiosk (PPK)', remote:'Remote-dispensing site (RDSP)'};
   const modalityLetters = {lockers:'L', kiosks:'K', remote:'R'};
@@ -17,7 +17,7 @@
   if (innerWidth <= 640) document.querySelector('.map-key').open = false;
   function setTheme() {
     root.dataset.theme = theme;
-    themeButton.textContent = theme === 'dark' ? '☀' : '☾';
+    themeButton.textContent = theme === 'dark' ? 'Light' : 'Dark';
     themeButton.setAttribute('aria-label', `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`);
     if (ready) paint();
   }
@@ -41,13 +41,13 @@
   function fit(features, maxZoom = 11) {
     if (!features.length) return;
     const statewide = features.length > 900;
-    map.fitBounds(bounds(features), {padding: {top: 55, bottom: statewide ? (innerWidth <=640 ? 85 : 320) : 65, left: 32, right: 32}, maxZoom, duration: reduced ? 0 : 850});
+    map.fitBounds(bounds(features), {padding: {top: 55, bottom: statewide ? (innerWidth <=640 ? 65 : 225) : 65, left: statewide && innerWidth>960 ? 95 : 32, right: 32}, maxZoom, duration: reduced ? 0 : 850});
   }
   function populateCounties() {
     $('county-table').querySelector('tbody').innerHTML = stats.all_counties.map(c => `<tr>
       <td><button class="county-link" data-county="${c.fips}">${esc(c.name)}</button></td>
       <td>${c.n_desert} / ${c.n_tracts}</td><td>${c.pct_desert}%</td><td>${fmt(c.pop_in_desert)}</td>
-      <td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:${c.pct_desert}%"></div></div></td></tr>`).join('');
+      <td>${c.n_dual}</td></tr>`).join('');
     $('county-filter').innerHTML += [...stats.all_counties].sort((a,b) => a.name.localeCompare(b.name)).map(c => `<option value="${c.fips}">${esc(c.name)}</option>`).join('');
     $('county-table').addEventListener('click', event => {
       const button = event.target.closest('[data-county]');
@@ -64,12 +64,12 @@
   };
   function resetSelection() {
     map.setFilter('tracts-selected', ['==', ['get','GEOID'], '']);
-    $('info-content').innerHTML = '<p class="info-empty">Select a tract to review its baseline classification and source limitations.</p>';
+    $('info-content').innerHTML = '<p class="info-empty">Select a tract to review the supplied poster classification and source limitations.</p>';
   }
   function focusCounty(code) {
     resetSelection();
     fit(code ? tracts.features.filter(f => f.properties.COUNTYFP === code) : tracts.features, code ? 11 : 8);
-    $('map-status').textContent = code ? `${stats.all_counties.find(c=>c.fips===code).name} County · September baseline` : '992 analyzed tracts · 663 pharmacy records';
+    $('map-status').textContent = code ? `${stats.all_counties.find(c=>c.fips===code).name} County · supplied poster scenario` : '993 supplied tract records · October poster scenario';
   }
   document.querySelectorAll('.zoom-btn').forEach(button => button.addEventListener('click', () => {
     if (!ready) return;
@@ -79,23 +79,28 @@
     if (!v) fit(tracts.features, 8);
     else if (v.bounds) map.fitBounds(v.bounds, {padding:32,duration:reduced ? 0 : 850});
     else map.flyTo({...v, duration:reduced ? 0 : 850});
-    $('map-status').textContent = `${button.textContent} · September baseline`;
+    $('map-status').textContent = `${button.textContent} · supplied poster scenario`;
   }));
   $('county-filter').addEventListener('change', e => { if (ready) focusCounty(e.target.value); });
 
   function showTract(p) {
     const analyzed = p.analyzed === true || p.analyzed === 'true';
     const desert = Number(p.is_desert) === 1;
-    $('info-content').innerHTML = `<span class="info-badge ${desert?'desert':'served'}">${analyzed ? (desert?'Pharmacy desert':'Not classified as desert') : 'Not analyzed / no data'}</span>
+    const high = p.high_svi === true || p.high_svi === 'true';
+    const scoreValid = p.RPL_THEMES != null && Number(p.RPL_THEMES)>=0;
+    const classification = desert ? (high?'Desert + high SVI':'Desert flag') : (high?'High SVI only':scoreValid?'Neither displayed flag':'SVI unavailable');
+    $('info-content').innerHTML = `<span class="info-badge ${desert?'desert':'served'}">${analyzed ? classification : 'No workbook record'}</span>
       <h4>${esc(p.NAMELSAD)}</h4><p class="small muted">${esc(p.county_name)} County<br>GEOID ${esc(p.GEOID)}</p>
-      ${analyzed ? `<dl><dt>Population estimate</dt><dd>${fmt(p.population)}</dd>
+      ${analyzed ? `<p class="small muted">${esc(p.place || '')}</p><dl><dt>2020 residents*</dt><dd>${fmt(p.population)}</dd>
       <dt>Density / sq. mile</dt><dd>${fmt(Math.round(p.pop_density))}</dd>
-      <dt>Stored category</dt><dd>${esc(p.urban_rural)}</dd>
-      <dt>Nearest distance</dt><dd>${Number(p.dist_nearest_mi).toFixed(2)} mi</dd>
-      <dt>Applied threshold</dt><dd>&gt;${p.threshold_mi} mi</dd>
-      <dt>Stored SVI 2022</dt><dd>${p.RPL_THEMES != null && Number(p.RPL_THEMES)>=0 ? Number(p.RPL_THEMES).toFixed(3) : 'Unavailable'}</dd></dl>
-      <p class="small muted selection-note">Straight-line baseline estimate, not road travel. Population vintage and pharmacy coordinates need validation.</p>` :
-      '<p class="small muted">This geometry has no matched September analysis record. It is not counted as adequate access or included in the 992-tract denominator.</p>'}`;
+      <dt>Source category</dt><dd>${esc(p.urban_rural)}</dd>
+      <dt>Straight-line distance</dt><dd>${Number(p.dist_nearest_mi).toFixed(2)} mi</dd>
+      <dt>Estimated drive</dt><dd>${Number(p.est_drive_min).toFixed(1)} min</dd>
+      <dt>Effective threshold</dt><dd>&gt;${p.threshold_mi} mi</dd>
+      <dt>Pharmacies in range*</dt><dd>${fmt(p.pharmacies_in_range)}</dd>
+      <dt>SVI 2022 score</dt><dd>${scoreValid ? Number(p.RPL_THEMES).toFixed(3) : 'Unavailable'}</dd></dl>
+      <p class="small muted selection-note">*Source-labeled values from the supplied 495-outlet scenario. Estimated travel is not routed. Eligibility, geocoding and population origins have not been independently rerun here.</p>` :
+      '<p class="small muted">This geometry has no matched poster workbook record. It is excluded from the 993-tract denominator, not counted as adequate access.</p>'}`;
     map.setFilter('tracts-selected', ['==', ['get','GEOID'], p.GEOID]);
     $('map-status').textContent = `Selected: ${p.NAMELSAD} · ${p.county_name} County`;
     if (innerWidth > 960) {
@@ -120,27 +125,38 @@
   function paint() {
     if (!ready) return;
     const mode = $('map-mode').value;
-    const noData = theme==='dark' ? '#344247' : '#edf0f0';
-    map.setPaintProperty('tracts-fill','fill-color',['case',
-      ['==',['get','analyzed'],false],noData,
-      ['==',['get','is_desert'],1],css('--color-desert'),css('--color-served')]);
+    const noData = theme==='dark' ? '#727b86' : '#eeeeee';
+    const no=['==',['get','analyzed'],false], desert=['==',['get','is_desert'],1], high=['==',['get','high_svi'],true];
+    const color = mode==='svi' ? ['case',no,noData,['==',['get','is_dual_burden'],1],'#d30a78',desert,'#eea62b',high,'#3695a6',css('--color-served')] :
+      mode==='vulnerability' ? ['case',no,noData,['==',['get','RPL_THEMES'],null],noData,['>=',['get','RPL_THEMES'],.75],'#237d91',['>=',['get','RPL_THEMES'],.5],'#66aaba',['>=',['get','RPL_THEMES'],.25],'#a8d0da','#dfeff2'] :
+      mode==='resilience' ? ['case',no,noData,desert,'#eea62b',['==',['get','is_near_desert'],1],'#376bb6',css('--color-served')] :
+      ['case',no,noData,desert,css('--color-desert'),css('--color-served')];
+    map.setPaintProperty('tracts-fill','fill-color',color);
     map.setPaintProperty('tracts-outline','line-color',theme==='dark'?'#5b696c':'#ffffff');
     map.setPaintProperty('tracts-selected','line-color',theme==='dark'?'#ffffff':'#254bb4');
     map.setPaintProperty('counties-line','line-color',theme==='dark'?'#aac0c6':'#687c83');
     map.setLayoutProperty('density-fill','visibility',mode==='density' && $('layer-tracts').checked?'visible':'none');
-    map.setLayoutProperty('svi-fill','visibility',mode==='svi' && $('layer-tracts').checked?'visible':'none');
+    map.setLayoutProperty('svi-fill','visibility','none');
     const help = {
-      desert:'Stored September desert classification; no new thresholds applied.',
-      density:'Blue shading shows density within desert tracts. Darker = denser; continuous log scale, not a priority score.',
-      svi:'Highlights stored dual-burden flags (desert + SVI ≥0.75). Ranking reference population needs confirmation.'
+      desert:'Desert flags from the supplied 495-outlet scenario. Estimated travel, not road-network routing.',
+      density:'Continuous log-scaled density within supplied desert tracts. Darker blue means denser, not a validated priority score.',
+      svi:'Magenta: both flags. Gold: desert only. Teal: SVI ≥0.75 only. Neither flag does not prove adequate access.',
+      vulnerability:'SVI 2022 scores as supplied. Missing SVI is not classified as low vulnerability.',
+      resilience:'Blue: exactly one pharmacy in the supplied range. Gold: already flagged as desert. This is not a closure forecast.'
     };
     $('mode-help').textContent = help[mode];
-    $('dynamic-legend').innerHTML = mode==='density' ? '<div class="legend-row"><span class="swatch swatch-density"></span>Density in desert tracts</div><div class="density-ramp"></div><p>Lower → higher density</p>' :
-      mode==='svi' ? '<div class="legend-row"><span class="swatch swatch-dual"></span>Stored dual burden</div>' : '';
+    const swatch=(c,t)=>`<div class="legend-row"><span class="swatch" style="background:${c}"></span>${t}</div>`;
+    const legend = mode==='svi' ? [['#d30a78','Desert + SVI ≥0.75'],['#eea62b','Desert only'],['#3695a6','High SVI only'],[css('--color-served'),'Neither displayed flag']] :
+      mode==='vulnerability' ? [['#dfeff2','SVI 0 to <0.25'],['#a8d0da','SVI 0.25 to <0.50'],['#66aaba','SVI 0.50 to <0.75'],['#237d91','SVI 0.75 to 1']] :
+      mode==='resilience' ? [['#eea62b','Desert flag'],['#376bb6','One pharmacy in range'],[css('--color-served'),'Neither access flag']] :
+      [[css('--color-desert'),'Desert flag'],[css('--color-served'),'No desert flag']];
+    $('dynamic-legend').innerHTML=legend.map(x=>swatch(...x)).join('')+swatch(noData,mode==='vulnerability'?'No record / SVI unavailable':'No workbook record')+
+      (mode==='density'?'<div class="density-ramp"></div><p>Density: lower → higher</p>':'')+
+      ($('layer-pharmacies').checked?'<div class="legend-row"><span class="swatch pin"></span>Community pharmacy (495)</div><div class="legend-row"><span class="swatch pin keystone"></span>Keystone pharmacy (141)</div>':'');
   }
   const toggles = {
     'layer-tracts':['tracts-fill','tracts-outline','tracts-selected'],
-    'layer-pharmacies':['pharmacies-clusters','pharmacies-cluster-count','pharmacies-points','pharmacies-shared-count'],
+    'layer-pharmacies':['pharmacies-halo','pharmacies-points','pharmacies-labels'],
     'layer-counties':['counties-line'],
     'layer-roads':['roads-casing','roads-line','roads-label'],
     'layer-neighborhoods':['neighborhoods-line']
@@ -152,7 +168,7 @@
   }));
   function modalityPopup(kind, records, coordinates) {
     const html = `<div class="popup-title">${esc(modalityLabels[kind])}</div>
-      <p class="small muted">${records.length} source record${records.length===1?'':'s'}. Existing approximate coordinates; verify eligibility, hours, and services directly. Not interchangeable with a full-service pharmacy.</p>
+      <p class="small muted">${records.length} source record${records.length===1?'':'s'}. Verify eligibility, hours, and services directly. Not interchangeable with a full-service pharmacy.</p>
       <div class="pharmacy-records">${records.map(p=>`<div class="pharmacy-record"><strong>${esc(p.name)}</strong>
       <p>${esc(p.address)}<br>${esc(p.city_state_zip || `${p.city}, ${p.state} ${p.zip}`)}</p>
       <small>${kind==='lockers'?'Parent license':'License'} ${esc(p.license)}${p.license_type ? ` · ${esc(p.license_type)}`:''}</small>
@@ -161,6 +177,7 @@
   }
   function setModalityVisibility(kind) {
     modalityMarkers.filter(m=>m.kind===kind).forEach(m=>m.marker.getElement().hidden=!$(`layer-${kind}`).checked);
+    paint();
   }
   for (const kind of ['lockers','kiosks','remote']) {
     $(`layer-${kind}`).addEventListener('change',()=>setModalityVisibility(kind));
@@ -170,7 +187,7 @@
     $(`layer-${kind}`).checked = true;
     setModalityVisibility(kind);
     fit(modalityData[kind].features,kind==='kiosks'?14:9);
-    $('map-status').textContent = kind==='lockers' ? '18 locker records mapped · 1 location withheld' : 'SDHC PHARMACY · PPK-0000002 · approximate location';
+    $('map-status').textContent = kind==='lockers' ? '18 locker rows mapped · 1 withheld' : 'Prescription kiosk · SDHC PHARMACY';
     if (kind==='kiosks') {
       const m=modalityMarkers.find(m=>m.kind===kind);
       modalityPopup(kind,m.records,m.coordinates);
@@ -193,6 +210,7 @@
         const marker=new maplibregl.Marker({element:el,offset:offsets[kind]}).setLngLat(coordinates).addTo(map);
         el.setAttribute('aria-label',`${modalityLabels[kind]}: ${records.map(r=>r.name).join('; ')}`);
         modalityMarkers.push({kind,records,coordinates,marker});
+        el.hidden=!$(`layer-${kind}`).checked;
       }
     }
     $('access-directory-content').innerHTML=Object.entries(modalityLabels).map(([kind,label])=>`<h3>${esc(label)}: ${accessData[kind].length} records</h3>
@@ -219,21 +237,32 @@
   }
   async function initialize() {
     try {
-      [tracts,counties,stats] = await Promise.all([json('data/oregon_tracts.geojson'),json('data/oregon_counties.geojson'),json('data/stats.json')]);
+      [tracts,counties,stats] = await Promise.all([json('data/oregon_tracts.geojson'),json('data/oregon_counties.geojson'),json('data/poster_results.json')]);
+      tracts.features.forEach(f=>{
+        const p=f.properties;
+        f.properties=stats.tracts[p.GEOID] || {GEOID:p.GEOID,COUNTYFP:p.COUNTYFP,county_name:p.county_name,NAMELSAD:p.NAMELSAD,analyzed:false};
+      });
       populateCounties();
+      // Opaque-origin previews cannot exchange MapLibre worker messages reliably.
+      // Use a DOM/SVG renderer there, with identical supplied data and controls.
+      if (window.origin === 'null' || new URLSearchParams(location.search).get('renderer') === 'svg') {
+        await window.startRxPreviewMap({tracts,counties,stats});
+        return;
+      }
       if (!window.maplibregl) throw new Error('The map library could not load. Check your connection and retry.');
       map = new maplibregl.Map({container:'map-canvas',style:'https://tiles.openfreemap.org/styles/positron',
-        center:[-120.5,44.0],zoom:6,minZoom:4,maxZoom:16,attributionControl:{compact:true}});
+        center:[-122.68,45.5],zoom:9.5,minZoom:4,maxZoom:16,attributionControl:{compact:true}});
       window.rxAccessMap = map;
       map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');
       map.addControl(new maplibregl.ScaleControl({unit:'imperial'}),'bottom-right');
       const watchdog = setTimeout(()=>{if(!ready)fail('The map service is taking too long. The findings and methodology remain available below.');},30000);
-      map.on('load', async () => {
+      // Research layers must not wait for all external vector basemap tiles.
+      map.once('style.load', async () => {
         try {
           // Remove basemap labels to prevent competing city/route annotations.
           for (const layer of map.getStyle().layers) if (layer.type==='symbol') map.setLayoutProperty(layer.id,'visibility','none');
           const [pharmacies, neighborhoods, roads, lockers, kiosks, remote, directory] = await Promise.all([
-            json('data/oregon_pharmacies.geojson'),json('data/portland_neighborhoods.geojson'),json('data/portland_highways.geojson'),
+            json('data/pharmacies_495.geojson'),json('data/portland_neighborhoods.geojson'),json('data/portland_highways.geojson'),
             json('data/oregon_lockers.geojson'),json('data/oregon_kiosks.geojson'),json('data/oregon_remote.geojson'),json('data/access_locations.json')]);
           modalityData={lockers,kiosks,remote};
           accessData=directory;
@@ -256,55 +285,91 @@
             layout:{'symbol-placement':'line','symbol-spacing':350,'text-field':['get','ref'],'text-size':12,'text-font':['Noto Sans Regular'],'text-padding':16,'text-keep-upright':true},
             paint:{'text-color':'#334155','text-halo-color':'#ffffff','text-halo-width':2}});
           map.addLayer({id:'tracts-selected',type:'line',source:'tracts',filter:['==',['get','GEOID'],''],paint:{'line-color':'#254bb4','line-width':2.5}});
-          map.addSource('pharmacies',{type:'geojson',data:pharmacies,cluster:true,clusterMaxZoom:10,clusterRadius:28,
-            clusterProperties:{pharmacy_count:['+',['get','record_count']]}});
-          map.addLayer({id:'pharmacies-clusters',type:'circle',source:'pharmacies',filter:['has','point_count'],
-            paint:{'circle-color':'#3563d3','circle-radius':['step',['get','pharmacy_count'],12,10,15,50,20],'circle-opacity':0.95,'circle-stroke-width':1.5,'circle-stroke-color':'#fff'}});
-          map.addLayer({id:'pharmacies-cluster-count',type:'symbol',source:'pharmacies',filter:['has','point_count'],
-            layout:{'text-field':['to-string',['get','pharmacy_count']],'text-font':['Noto Sans Bold'],'text-size':12,'text-allow-overlap':true},paint:{'text-color':'#fff'}});
-          map.addLayer({id:'pharmacies-points',type:'circle',source:'pharmacies',filter:['!', ['has','point_count']],
-            paint:{'circle-color':'#3563d3','circle-radius':['case',['>', ['get','record_count'],1],9,3.5],'circle-stroke-width':1,'circle-stroke-color':'#ffffff'}});
-          map.addLayer({id:'pharmacies-shared-count',type:'symbol',source:'pharmacies',filter:['all',['!', ['has','point_count']],['>', ['get','record_count'],1]],
-            layout:{'text-field':['to-string',['get','record_count']],'text-size':12,'text-font':['Noto Sans Bold'],'text-allow-overlap':true},paint:{'text-color':'#ffffff'}});
+          map.addSource('pharmacies',{type:'geojson',data:pharmacies});
+          map.addLayer({id:'pharmacies-halo',type:'circle',source:'pharmacies',filter:['==',['get','keystone'],true],
+            paint:{'circle-color':'rgba(224,18,122,0.18)','circle-radius':['interpolate',['linear'],['zoom'],6,5,10,9,14,15],'circle-stroke-width':0}});
+          map.addLayer({id:'pharmacies-points',type:'circle',source:'pharmacies',
+            paint:{'circle-color':['case',['get','keystone'],'#E0127A','#14284B'],
+              'circle-radius':['interpolate',['linear'],['zoom'],6,2.2,10,4.2,13,6.5,16,9],
+              'circle-stroke-width':['interpolate',['linear'],['zoom'],6,0.6,11,1.5,14,2],'circle-stroke-color':'#ffffff'}});
+          map.addLayer({id:'pharmacies-labels',type:'symbol',source:'pharmacies',minzoom:13.5,
+            layout:{'text-field':['get','name'],'text-font':['Noto Sans Bold'],'text-size':11,'text-offset':[0,1.1],'text-anchor':'top','text-max-width':10,'text-optional':true},
+            paint:{'text-color':'#14284B','text-halo-color':'#ffffff','text-halo-width':1.6}});
           const cities = [['Portland',-122.6784,45.5152],['Salem',-123.0351,44.9429],['Eugene',-123.0868,44.0521],['Bend',-121.3153,44.0582],['Medford',-122.8756,42.3265]];
           map.addSource('cities',{type:'geojson',data:{type:'FeatureCollection',features:cities.map(([name,lon,lat])=>({type:'Feature',properties:{name},geometry:{type:'Point',coordinates:[lon,lat]}}))}});
           map.addLayer({id:'cities-rings',type:'circle',source:'cities',paint:{'circle-radius':5,'circle-color':'rgba(255,255,255,0.4)','circle-stroke-color':'#334155','circle-stroke-width':2}});
-          map.moveLayer('cities-rings','pharmacies-clusters');
-          map.addLayer({id:'cities-label',type:'symbol',source:'cities',layout:{'text-field':['get','name'],'text-font':['Noto Sans Bold'],'text-size':13,'text-variable-anchor':['top-right','bottom-right','top-left','bottom-left'],'text-radial-offset':1,'text-padding':8},paint:{'text-color':'#334155','text-halo-color':'#ffffff','text-halo-width':2}});
+          map.moveLayer('cities-rings','pharmacies-halo');
+          map.addLayer({id:'cities-label',type:'symbol',source:'cities',layout:{'text-field':['get','name'],'text-font':['Noto Sans Bold'],'text-size':13,'text-variable-anchor':['left','top-left','bottom-left','right'],'text-radial-offset':1,'text-padding':8},paint:{'text-color':'#334155','text-halo-color':'#ffffff','text-halo-width':2}});
           map.on('click', e => {
-            const hits = map.queryRenderedFeatures(e.point,{layers:['pharmacies-clusters','pharmacies-points']});
+            const hits = map.queryRenderedFeatures(e.point,{layers:['pharmacies-points']});
             if (hits.length) return;
             const tract = map.queryRenderedFeatures(e.point,{layers:['tracts-fill']})[0];
             if (tract) showTract(tract.properties);
           });
+          const pharmacyHtml = p => `<div class="popup-title rx-popup-title"><span class="rx-tag ${p.keystone?'keystone':''}">${p.keystone?'Keystone pharmacy':'Community pharmacy'}</span>${esc(p.name)}</div>
+              <p class="rx-address">${esc(p.address)}<br>${esc(p.city)}, OR ${esc(p.zip)}</p>
+              <p class="small muted">${esc(p.county)} County · License ${esc(p.license)}</p>
+              ${p.keystone?`<p class="rx-keystone-note">Only pharmacy in range for ${fmt(p.keystone_tracts)} tract${Number(p.keystone_tracts)===1?'':'s'} · ${fmt(p.keystone_pop)} residents</p>`:''}
+              <a class="rx-directions" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${p.name} ${p.address} ${p.city} OR ${p.zip}`)}" target="_blank" rel="noopener">Open in Google Maps ↗</a>`;
+          const hover = new maplibregl.Popup({closeButton:false,closeOnClick:false,offset:10,className:'rx-hover'});
           map.on('click','pharmacies-points', e => {
-            const feature = e.features[0], records = JSON.parse(feature.properties.records);
-            const html = `<div class="popup-title">${records.length===1?'Regular pharmacy (RP)':`${records.length} regular-pharmacy records at shared coordinates`}</div>
-              <p class="small muted">September 4 BOP baseline. Location accuracy, current operations, and public access are not verified.</p>
-              <div class="pharmacy-records">${records.map(p=>`<div class="pharmacy-record"><strong>${esc(p.name)}</strong><p>${esc(p.address)}<br>${esc(p.city)}, ${esc(p.state)} ${esc(p.zip)}</p><small>License ${esc(p.license)}</small></div>`).join('')}</div>`;
-            new maplibregl.Popup({maxWidth:'340px',offset:12}).setLngLat(feature.geometry.coordinates).setHTML(html).addTo(map);
+            hover.remove();
+            const feature = e.features[0];
+            new maplibregl.Popup({maxWidth:'300px',offset:12,className:'rx-popup'}).setLngLat(feature.geometry.coordinates).setHTML(pharmacyHtml(feature.properties)).addTo(map);
           });
-          map.on('click','pharmacies-clusters',async e=>{
-            const f = e.features[0];
-            try {const zoom = await map.getSource('pharmacies').getClusterExpansionZoom(f.properties.cluster_id); map.easeTo({center:f.geometry.coordinates,zoom,duration:reduced?0:600});} catch { $('map-status').textContent='Zoom in to inspect the pharmacy records.'; }
+          map.on('mousemove','pharmacies-points', e => {
+            const p = e.features[0].properties;
+            hover.setLngLat(e.features[0].geometry.coordinates).setHTML(`<strong>${esc(p.name)}</strong><br>${esc(p.address)}, ${esc(p.city)}`).addTo(map);
           });
-          for (const id of ['tracts-fill','pharmacies-points','pharmacies-clusters']) {
+          map.on('mouseleave','pharmacies-points',()=>hover.remove());
+          for (const id of ['tracts-fill','pharmacies-points']) {
             map.on('mouseenter',id,()=>map.getCanvas().style.cursor='pointer');
             map.on('mouseleave',id,()=>map.getCanvas().style.cursor='');
           }
           ready = true;
           addModalities();
+          Object.entries(toggles).forEach(([id,layers])=>layers.forEach(layer=>map.setLayoutProperty(layer,'visibility',$(id).checked?'visible':'none')));
           clearTimeout(watchdog);
           controls.forEach(control=>control.disabled=false);
           paint();
-          fit(tracts.features,8);
+          if (innerWidth<=640) map.jumpTo({center:[-122.68,45.5],zoom:9.3}); else map.fitBounds(views.portland.bounds,{padding:24,duration:0});
           $('map-loading').classList.add('hidden');
           $('map-loading').setAttribute('aria-hidden','true');
           new ResizeObserver(()=>map.resize()).observe($('map-canvas'));
-        } catch (error) { clearTimeout(watchdog); console.error(error); fail('Some baseline layers could not load. Please retry.'); }
+        } catch (error) { clearTimeout(watchdog); console.error(error); fail('Some research layers could not load. Please retry.'); }
       });
-    } catch (error) { console.error(error); fail('The baseline data or map library could not load. Check your connection and retry.'); }
+    } catch (error) { console.error(error); fail('The supplied data or map library could not load. Check your connection and retry.'); }
   }
   $('map-mode').addEventListener('change',paint);
+  $('metro-cta').addEventListener('click',()=>{
+    document.querySelector('[data-zoom="portland"]').click();
+    $('map').scrollIntoView({behavior:reduced?'auto':'smooth'});
+  });
+  $('county-search').addEventListener('input',event=>{
+    let visible=0;
+    document.querySelectorAll('#county-table tbody tr').forEach(row=>{
+      row.hidden=!row.cells[0].textContent.toLowerCase().includes(event.target.value.trim().toLowerCase());
+      if(!row.hidden)visible++;
+    });
+    $('county-search-status').textContent=visible?`${visible} counties shown`:'No matching county. Clear the search to see all 36.';
+  });
+  document.querySelectorAll('.poster-open').forEach(button=>button.addEventListener('click',()=>{
+    $('enlarged-figure').classList.remove('zoomed');
+    $('zoom-figure').textContent='Zoom in';
+    $('zoom-figure').setAttribute('aria-pressed','false');
+    $('enlarged-figure').src=button.dataset.image;
+    $('enlarged-figure').alt=button.dataset.title;
+    $('figure-title').textContent=button.dataset.title;
+    $('figure-dialog').showModal();
+  }));
+  $('close-figure').addEventListener('click',()=>$('figure-dialog').close());
+  $('zoom-figure').addEventListener('click',()=>{
+    const zoomed=$('enlarged-figure').classList.toggle('zoomed');
+    $('zoom-figure').textContent=zoomed?'Fit image':'Zoom in';
+    $('zoom-figure').setAttribute('aria-pressed',String(zoomed));
+  });
+  document.querySelectorAll('img').forEach(img=>img.addEventListener('error',()=>{
+    const note=document.createElement('p');note.className='image-error';note.textContent='This reference image could not load. Please refresh and try again.';img.replaceWith(note);
+  }));
   initialize();
 })();
